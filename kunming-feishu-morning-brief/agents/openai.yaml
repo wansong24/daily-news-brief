@@ -1,0 +1,4 @@
+interface:
+  display_name: "昆明飞书晨报"
+  short_description: "生成昆明本地化飞书图文晨报并推送到手机端精致阅读版"
+  default_prompt: "生成一份适合手机端阅读的昆明飞书图文晨报"
