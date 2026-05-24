@@ -23,9 +23,11 @@ Create a polished mobile-first Feishu card morning brief for a user in Kunming. 
 3. Select only important items.
    - Prefer 1-2 international, 2 China, 1-2 Yunnan/Kunming, 1-2 AI.
    - Do not pad a section with weak stories. Say that no sufficiently important item was found if needed.
-4. Pair each important story with a real news-related image.
-   - Use the article `og:image`, official press image, event photo, person photo, rescue/site image, spacecraft/launch image, product screenshot, or other directly related image.
-   - Do not use abstract title cards or generic decorative images unless no event image is available and the fallback is clearly labeled.
+4. Pair only selected stories with real, verified news-related images.
+   - Use an image only when it clearly matches that exact story: event/site photo, named person photo, official press image, rescue/site image, spacecraft/launch image, product screenshot, or article `og:image` from the same article.
+   - Prefer fewer images over weak matches. If the match is uncertain, omit the image and use text only.
+   - Do not use abstract title cards, generic decorative images, cross-section images, keyword-only matches, or fallback images.
+   - Never use an international figure/event image for a Yunnan/Kunming local story, or any other cross-topic/cross-location substitute.
 5. Write each item as:
    - Bold section label/title.
    - 2-4 mobile-friendly sentences explaining what happened and why it matters.
@@ -48,7 +50,8 @@ Use an interactive card with:
 - Header: `昆明晨报｜YYYY年M月D日`.
 - First block: date, coverage window, Kunming weather and clothing advice.
 - Then story blocks in this order: international, China, Yunnan/Kunming, AI.
-- For each story: `img` element immediately before the matching story text.
+- For each story with a verified image: `img` element immediately before the matching story text.
+- For stories without a verified image: omit the image entirely.
 - End blocks: `今日判断` and `每日一句`.
 - Mobile style: short paragraphs, clear bold labels, restrained separators, no wall-of-text.
 
