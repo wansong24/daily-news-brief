@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Send a Feishu interactive card from a JSON file.
 
-Environment:
-  FEISHU_APP_ID
-  FEISHU_APP_SECRET
-  FEISHU_CHAT_ID
-  FEISHU_CONFIG_FILE (optional; defaults to ~/.codex/private/feishu_morning_brief.json)
+Default config:
+  ~/.codex/private/feishu_morning_brief.json
+
+Optional environment override:
+  FEISHU_CONFIG_FILE
 
 Usage:
   python scripts/send_feishu_card.py card.json
@@ -35,27 +35,16 @@ def post_json(url: str, payload: dict, token: str | None = None) -> dict:
         return json.loads(response.read().decode("utf-8"))
 
 
-def require_env(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        raise SystemExit(f"Missing required environment variable: {name}")
-    return value
-
-
 def load_credentials() -> tuple[str, str, str]:
-    app_id = os.environ.get("FEISHU_APP_ID")
-    app_secret = os.environ.get("FEISHU_APP_SECRET")
-    chat_id = os.environ.get("FEISHU_CHAT_ID")
-    if app_id and app_secret and chat_id:
-        return app_id, app_secret, chat_id
-
     config_path = Path(os.environ.get("FEISHU_CONFIG_FILE", DEFAULT_CONFIG_FILE))
-    if config_path.exists():
-        with config_path.open("r", encoding="utf-8") as file:
-            config = json.load(file)
-        app_id = app_id or config.get("FEISHU_APP_ID")
-        app_secret = app_secret or config.get("FEISHU_APP_SECRET")
-        chat_id = chat_id or config.get("FEISHU_CHAT_ID")
+    if not config_path.exists():
+        raise SystemExit(f"Missing Feishu config file: {config_path}")
+
+    with config_path.open("r", encoding="utf-8") as file:
+        config = json.load(file)
+    app_id = config.get("FEISHU_APP_ID")
+    app_secret = config.get("FEISHU_APP_SECRET")
+    chat_id = config.get("FEISHU_CHAT_ID")
 
     missing = [
         name
