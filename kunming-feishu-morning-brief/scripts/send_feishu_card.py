@@ -5,6 +5,7 @@ Environment:
   FEISHU_APP_ID
   FEISHU_APP_SECRET
   FEISHU_CHAT_ID
+  FEISHU_CONFIG_FILE (optional; defaults to ~/.codex/private/feishu_morning_brief.json)
 
 Usage:
   python scripts/send_feishu_card.py card.json
@@ -16,10 +17,12 @@ import json
 import os
 import sys
 import urllib.request
+from pathlib import Path
 
 
 AUTH_URL = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
 MESSAGE_URL = "https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=chat_id"
+DEFAULT_CONFIG_FILE = Path.home() / ".codex" / "private" / "feishu_morning_brief.json"
 
 
 def post_json(url: str, payload: dict, token: str | None = None) -> dict:
@@ -39,13 +42,40 @@ def require_env(name: str) -> str:
     return value
 
 
+def load_credentials() -> tuple[str, str, str]:
+    app_id = os.environ.get("FEISHU_APP_ID")
+    app_secret = os.environ.get("FEISHU_APP_SECRET")
+    chat_id = os.environ.get("FEISHU_CHAT_ID")
+    if app_id and app_secret and chat_id:
+        return app_id, app_secret, chat_id
+
+    config_path = Path(os.environ.get("FEISHU_CONFIG_FILE", DEFAULT_CONFIG_FILE))
+    if config_path.exists():
+        with config_path.open("r", encoding="utf-8") as file:
+            config = json.load(file)
+        app_id = app_id or config.get("FEISHU_APP_ID")
+        app_secret = app_secret or config.get("FEISHU_APP_SECRET")
+        chat_id = chat_id or config.get("FEISHU_CHAT_ID")
+
+    missing = [
+        name
+        for name, value in {
+            "FEISHU_APP_ID": app_id,
+            "FEISHU_APP_SECRET": app_secret,
+            "FEISHU_CHAT_ID": chat_id,
+        }.items()
+        if not value
+    ]
+    if missing:
+        raise SystemExit(f"Missing Feishu credentials: {', '.join(missing)}")
+    return app_id, app_secret, chat_id
+
+
 def main() -> int:
     if len(sys.argv) != 2:
         raise SystemExit("Usage: send_feishu_card.py card.json")
 
-    app_id = require_env("FEISHU_APP_ID")
-    app_secret = require_env("FEISHU_APP_SECRET")
-    chat_id = require_env("FEISHU_CHAT_ID")
+    app_id, app_secret, chat_id = load_credentials()
 
     with open(sys.argv[1], "r", encoding="utf-8") as file:
         card = json.load(file)
